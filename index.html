@@ -4,48 +4,9 @@
     <meta charset="utf-8">
     <title>Home Grown React</title>
   </head>
+  <script src="./dist/index.js"></script>
   <body>
     <div id="app">
     </div>
   </body>
 </html>
-
-<script>
-
-var sample = {
-  type: 'Button',
-  props: {
-    text: 'there',
-    children: []
-  }
-}
-
-var one = createElement(sample)
-
-var sample2 = {
-  type: 'div',
-  props: {
-    text: '',
-    children: [one]
-  }
-}
-
-var two = createElement(sample2)
-
-function createElement(elementProperties) {
-  var element = document.createElement(elementProperties.type);
-  element.innerHTML = elementProperties.props.text;
-
-  elementProperties.props.children.forEach(function(child) {
-    element.appendChild(child)
-  });
-
-  return element;
-}
-
-document.addEventListener("DOMContentLoaded", function(event) {
-  var bah = document.querySelector('#app')
-  bah.appendChild(two)
-});
-
-</script>

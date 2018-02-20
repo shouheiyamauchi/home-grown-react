@@ -1,0 +1,10 @@
+{
+  "name": "home-grown-react",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Shouhei Yamauchi <shouhei.yamauchi@live.com>",
+  "license": "MIT",
+  "scripts": {
+    "bundle": "browserify src/index.js -o dist/index.js -d"
+  }
+}
