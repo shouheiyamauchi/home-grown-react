@@ -14,5 +14,8 @@
     "grunt": "^1.0.2",
     "grunt-browserify": "^5.2.0",
     "grunt-contrib-watch": "^1.0.0"
+  },
+  "dependencies": {
+    "immutability-helper": "^2.6.5"
   }
 }
