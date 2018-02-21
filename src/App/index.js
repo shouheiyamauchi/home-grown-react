@@ -3,6 +3,63 @@ const MockDatabase = require('../MockDatabase');
 
 const parentCategory = MockDatabase.categoryWithAllChildren(1);
 
+function renderCategory(category) {
+  const categoryTitleProps = {
+    type: 'div',
+    props: {
+      text: category.name,
+      children: renderLessons(category)
+    }
+  };
+  const categoryTitle = createElement(categoryTitleProps);
+
+  const categoryProps = {
+    type: 'div',
+    props: {
+      text: '',
+      children: [categoryTitle, renderSubcategories(category)]
+    }
+  };
+
+  return createElement(categoryProps);
+};
+
+const parentContainer = createElement({
+  type: 'div',
+  props: {
+    text: '',
+    children: [renderCategory(parentCategory)]
+  }
+});
+
+function renderLessons(category) {
+  const lessons = category.lessons.map(lesson => {
+    const lessonProps = {
+      type: 'div',
+      props: {
+        text: '',
+        children: [renderLesson(lesson)]
+      }
+    };
+
+    return createElement(lessonProps);
+  });
+
+  return lessons;
+};
+
+function renderLesson(lesson) {
+  const lessonProps = {
+    type: 'em',
+    props: {
+      text: lesson.name + ' - ' + lesson.description,
+      children: []
+    }
+  };
+
+  return createElement(lessonProps);
+};
+
 function renderSubcategories(parentCategory) {
   const subcategories = parentCategory.categories.length ? (
     parentCategory.categories.map(category => {
@@ -36,51 +93,6 @@ function renderSubcategories(parentCategory) {
 
   return createElement(subcategoriesProps);
 };
-
-function renderLessons(category) {
-  const lessons = category.lessons.map(lesson => {
-    const lessonProps = {
-      type: 'div',
-      props: {
-        text: lesson.name,
-        children: []
-      }
-    }
-
-    return createElement(lessonProps);
-  });
-
-  return lessons;
-};
-
-function renderCategory(category) {
-  const categoryTitleProps = {
-    type: 'div',
-    props: {
-      text: category.name,
-      children: renderLessons(category)
-    }
-  };
-  const categoryTitle = createElement(categoryTitleProps);
-
-  const categoryProps = {
-    type: 'div',
-    props: {
-      text: '',
-      children: [categoryTitle, renderSubcategories(category)]
-    }
-  };
-
-  return createElement(categoryProps);
-};
-
-const parentContainer = createElement({
-  type: 'div',
-  props: {
-    text: '',
-    children: [renderCategory(parentCategory)]
-  }
-});
 
 const App = parentContainer;
 
