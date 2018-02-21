@@ -554,7 +554,7 @@ function renderLessons(category) {
 
 function renderCategory(category) {
   const categoryTitleProps = {
-    type: 'h1',
+    type: 'div',
     props: {
       text: category.name,
       children: renderLessons(category)
