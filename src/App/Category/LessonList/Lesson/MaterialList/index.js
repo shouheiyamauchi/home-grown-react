@@ -11,11 +11,19 @@ const MaterialList = props => {
   return createElement({
     elementType: 'ol',
     childrenElements: materials.map(material => {
-      const materialDisplay = {
-        MaterialMultipleChoiceQuestion: MultipleChoiceQuestion({ material }),
-        MaterialText: Text({ material }),
-        MaterialYoutube: Youtube({ material })
-      }[material.materialType]
+      let materialDisplay
+
+      switch(material.materialType) {
+        case 'MaterialMultipleChoiceQuestion':
+          materialDisplay = new MultipleChoiceQuestion({ material }).render();
+          break;
+        case 'MaterialText':
+          materialDisplay = Text({ material });
+          break;
+        case 'MaterialYoutube':
+          materialDisplay = Youtube({ material });
+          break;
+      };
 
       return createElement({
         elementType: 'li',

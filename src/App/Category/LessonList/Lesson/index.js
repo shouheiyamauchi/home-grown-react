@@ -18,14 +18,10 @@ const Lesson = props => {
     innerText: lesson.name
   };
 
-  const openLesson = () => updateOpenedLesson(appComponent, lesson);
-  const closeLesson = () => updateOpenedLesson(appComponent, {});
-
   if (lesson.id === selectedLesson.id) {
-    lessonElementProps.onClick = closeLesson;
-    lessonElementProps.childrenElements = [MaterialList({ materials: lesson.materials })]
+    lessonElementProps.childrenElements = [MaterialList({ materials: lesson.materials })];
   } else {
-    lessonElementProps.onClick = openLesson;
+    lessonElementProps.onClick = () => updateOpenedLesson(appComponent, lesson);
   };
 
   return createElement(lessonElementProps);

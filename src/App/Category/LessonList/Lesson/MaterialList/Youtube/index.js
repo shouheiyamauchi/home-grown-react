@@ -8,8 +8,8 @@ const Youtube = props => {
   return createElement({
     elementType: 'iframe',
     attributes: {
-      'width': '560',
-      'height': '315',
+      'width': '280',
+      'height': '160',
       'src': material.video_url,
       'frameborder': '0'
     }
