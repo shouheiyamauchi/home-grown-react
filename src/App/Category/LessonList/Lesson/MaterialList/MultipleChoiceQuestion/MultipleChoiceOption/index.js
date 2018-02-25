@@ -36,7 +36,7 @@ const MultipleChoiceOption = props => {
   return createElement({
     elementType: 'div',
     childrenElements: [optionRadioElement, optionTextElement]
-  })
+  });
 };
 
 module.exports = MultipleChoiceOption;

@@ -41,9 +41,9 @@ const MaterialList = props => {
           }),
           createElement({ elementType: 'br' })
         ]
-      })
+      });
     })
-  })
+  });
 };
 
 module.exports = MaterialList;

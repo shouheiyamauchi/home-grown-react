@@ -818,9 +818,10 @@ const CloseLessonButton = props => {
     innerText: 'Close Lesson',
     attributes: {},
     onClick: () => updateOpenedLesson(appComponent, {})
+  };
 
-    // close lesson button only clickable when class is selected
-  };if (!lesson.id) closeLessonButtonElementProps.attributes.disabled = true;
+  // close lesson button only clickable when class is selected
+  if (!lesson.id) closeLessonButtonElementProps.attributes.disabled = true;
 
   return createElement(closeLessonButtonElementProps);
 };
@@ -1265,7 +1266,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 });
 
 },{"./App":15,"libraries/document-renderer":26}],26:[function(require,module,exports){
-function renderDocument(elements, DOMSelector) {
+const renderDocument = (elements, DOMSelector) => {
   DOMSelector.appendChild(elements);
 }
 
@@ -1285,7 +1286,6 @@ class component {
   }
 
   setRenderElement() {
-
   }
 
   render() {
@@ -1294,7 +1294,7 @@ class component {
   }
 }
 
-function createElement(elementProperties) {
+const createElement = elementProperties => {
   const {
     elementType,
     style,
@@ -1306,19 +1306,19 @@ function createElement(elementProperties) {
 
   const element = document.createElement(elementType);
 
-  if (style) Object.keys(style).forEach(function(styleName) {
+  if (style) Object.keys(style).forEach(styleName => {
     element.style[styleName] = style[styleName];
-  })
+  });
 
-  if (attributes) Object.keys(attributes).forEach(function(attributeName) {
+  if (attributes) Object.keys(attributes).forEach(attributeName => {
     element.setAttribute(attributeName, attributes[attributeName]);
   });
 
   element.innerHTML = innerText || '';
 
-  element.onclick = onClick
+  element.onclick = onClick;
 
-  if (childrenElements) childrenElements.forEach(function(child) {
+  if (childrenElements) childrenElements.forEach(child => {
     element.appendChild(child);
   });
 

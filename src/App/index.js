@@ -6,17 +6,17 @@ const Category = require('./Category');
 
 class App extends component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       selectedLesson: {}
-    }
+    };
 
     this.updateOpenedLesson = this.updateOpenedLesson.bind(this);
   }
 
   updateOpenedLesson(thisComponent, lesson) {
-    thisComponent.updateState(update(thisComponent.state, {selectedLesson: {$set: lesson}}), thisComponent.renderedElement)
+    thisComponent.updateState(update(thisComponent.state, {selectedLesson: {$set: lesson}}), thisComponent.renderedElement);
   }
 
   setRenderElement() {

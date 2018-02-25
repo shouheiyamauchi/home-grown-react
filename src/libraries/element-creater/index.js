@@ -11,7 +11,6 @@ class component {
   }
 
   setRenderElement() {
-
   }
 
   render() {
@@ -20,7 +19,7 @@ class component {
   }
 }
 
-function createElement(elementProperties) {
+const createElement = elementProperties => {
   const {
     elementType,
     style,
@@ -32,19 +31,19 @@ function createElement(elementProperties) {
 
   const element = document.createElement(elementType);
 
-  if (style) Object.keys(style).forEach(function(styleName) {
+  if (style) Object.keys(style).forEach(styleName => {
     element.style[styleName] = style[styleName];
-  })
+  });
 
-  if (attributes) Object.keys(attributes).forEach(function(attributeName) {
+  if (attributes) Object.keys(attributes).forEach(attributeName => {
     element.setAttribute(attributeName, attributes[attributeName]);
   });
 
   element.innerHTML = innerText || '';
 
-  element.onclick = onClick
+  element.onclick = onClick;
 
-  if (childrenElements) childrenElements.forEach(function(child) {
+  if (childrenElements) childrenElements.forEach(child => {
     element.appendChild(child);
   });
 

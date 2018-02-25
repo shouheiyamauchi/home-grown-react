@@ -1,4 +1,4 @@
-function renderDocument(elements, DOMSelector) {
+const renderDocument = (elements, DOMSelector) => {
   DOMSelector.appendChild(elements);
 }
 

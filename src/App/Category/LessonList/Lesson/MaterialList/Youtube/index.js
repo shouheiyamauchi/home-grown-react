@@ -13,7 +13,7 @@ const Youtube = props => {
       'src': material.video_url,
       'frameborder': '0'
     }
-  })
+  });
 };
 
 module.exports = Youtube;

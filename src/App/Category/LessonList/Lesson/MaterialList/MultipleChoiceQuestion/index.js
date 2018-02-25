@@ -8,7 +8,7 @@ class MultipleChoiceQuestion extends component {
 
     this.state = {
       selectedOption: null
-    }
+    };
   }
 
   updateSelectedOption(thisComponent, selectedOption) {
@@ -43,7 +43,7 @@ class MultipleChoiceQuestion extends component {
               updateSelectedOption
             })
           ]
-        })
+        });
       })
     };
 

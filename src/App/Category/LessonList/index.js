@@ -14,7 +14,7 @@ const LessonList = props => {
     childrenElements: lessons.map(lesson => {
       return Lesson({ lesson, selectedLesson, appComponent, updateOpenedLesson });
     })
-  })
+  });
 };
 
 module.exports = LessonList;

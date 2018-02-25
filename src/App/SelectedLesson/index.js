@@ -15,7 +15,7 @@ const SelectedLesson = props => {
       createElement({ elementType: 'br' }),
       CloseLessonButton({ lesson, appComponent, updateOpenedLesson })
     ]
-  })
+  });
 };
 
 module.exports = SelectedLesson;

@@ -8,7 +8,7 @@ const Text = props => {
   return createElement({
     elementType: 'em',
     innerText: material.description
-  })
+  });
 };
 
 module.exports = Text;

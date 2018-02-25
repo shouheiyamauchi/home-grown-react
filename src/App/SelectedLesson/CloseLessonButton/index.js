@@ -12,7 +12,7 @@ const CloseLessonButton = props => {
     innerText: 'Close Lesson',
     attributes: {},
     onClick: () => updateOpenedLesson(appComponent, {})
-  }
+  };
 
   // close lesson button only clickable when class is selected
   if (!lesson.id) closeLessonButtonElementProps.attributes.disabled = true;
