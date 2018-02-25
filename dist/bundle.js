@@ -514,7 +514,7 @@ const CategoryTitle = props => {
 
 module.exports = CategoryTitle;
 
-},{"libraries/element-creater":27}],5:[function(require,module,exports){
+},{"libraries/element-creater":28}],5:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 
 const MultipleChoiceOption = props => {
@@ -558,7 +558,7 @@ const MultipleChoiceOption = props => {
 
 module.exports = MultipleChoiceOption;
 
-},{"libraries/element-creater":27}],6:[function(require,module,exports){
+},{"libraries/element-creater":28}],6:[function(require,module,exports){
 const { component, createElement } = require('libraries/element-creater');
 const update = require('immutability-helper');
 const MultipleChoiceOption = require('./MultipleChoiceOption');
@@ -589,7 +589,7 @@ class MultipleChoiceQuestion extends component {
       material
     } = this.props;
 
-    const multipleChoiceQuestionElementProps = {
+    const multipleChoiceOptionsElementProps = {
       elementType: 'ol',
       childrenElements: material.options.map((option, index) => {
         return createElement({
@@ -606,13 +606,21 @@ class MultipleChoiceQuestion extends component {
       })
     };
 
-    this.renderedElement = createElement(multipleChoiceQuestionElementProps);
+    const multipleChoiceOptionsElement = createElement(multipleChoiceOptionsElementProps);
+
+    const multipleChoiceContainerProps = {
+      elementType: 'div',
+      innerText: material.question,
+      childrenElements: [multipleChoiceOptionsElement]
+    };
+
+    this.renderedElement = createElement(multipleChoiceContainerProps);
   }
 };
 
 module.exports = MultipleChoiceQuestion;
 
-},{"./MultipleChoiceOption":5,"immutability-helper":1,"libraries/element-creater":27}],7:[function(require,module,exports){
+},{"./MultipleChoiceOption":5,"immutability-helper":1,"libraries/element-creater":28}],7:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 
 const Text = props => {
@@ -628,7 +636,7 @@ const Text = props => {
 
 module.exports = Text;
 
-},{"libraries/element-creater":27}],8:[function(require,module,exports){
+},{"libraries/element-creater":28}],8:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 
 const Youtube = props => {
@@ -649,11 +657,39 @@ const Youtube = props => {
 
 module.exports = Youtube;
 
-},{"libraries/element-creater":27}],9:[function(require,module,exports){
+},{"libraries/element-creater":28}],9:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 const MultipleChoiceQuestion = require('./MultipleChoiceQuestion');
 const Text = require('./Text');
 const Youtube = require('./Youtube');
+
+const MaterialDisplay = props => {
+  const {
+    material
+  } = props;
+
+  let materialDisplay;
+
+  switch (material.materialType) {
+    case 'MaterialMultipleChoiceQuestion':
+      materialDisplay = new MultipleChoiceQuestion({ material }).render();
+      break;
+    case 'MaterialText':
+      materialDisplay = Text({ material });
+      break;
+    case 'MaterialYoutube':
+      materialDisplay = Youtube({ material });
+      break;
+  };
+
+  return materialDisplay;
+};
+
+module.exports = MaterialDisplay;
+
+},{"./MultipleChoiceQuestion":6,"./Text":7,"./Youtube":8,"libraries/element-creater":28}],10:[function(require,module,exports){
+const { createElement } = require('libraries/element-creater');
+const MaterialDisplay = require('./MaterialDisplay');
 
 const MaterialList = props => {
   const {
@@ -663,20 +699,6 @@ const MaterialList = props => {
   return createElement({
     elementType: 'ol',
     childrenElements: materials.map(material => {
-      let materialDisplay;
-
-      switch (material.materialType) {
-        case 'MaterialMultipleChoiceQuestion':
-          materialDisplay = new MultipleChoiceQuestion({ material }).render();
-          break;
-        case 'MaterialText':
-          materialDisplay = Text({ material });
-          break;
-        case 'MaterialYoutube':
-          materialDisplay = Youtube({ material });
-          break;
-      };
-
       return createElement({
         elementType: 'li',
         style: {
@@ -686,7 +708,7 @@ const MaterialList = props => {
         innerText: material.title,
         childrenElements: [createElement({
           elementType: 'div',
-          childrenElements: [materialDisplay]
+          childrenElements: [MaterialDisplay({ material })]
         }), createElement({ elementType: 'br' })]
       });
     })
@@ -695,7 +717,7 @@ const MaterialList = props => {
 
 module.exports = MaterialList;
 
-},{"./MultipleChoiceQuestion":6,"./Text":7,"./Youtube":8,"libraries/element-creater":27}],10:[function(require,module,exports){
+},{"./MaterialDisplay":9,"libraries/element-creater":28}],11:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 const MaterialList = require('./MaterialList');
 
@@ -727,7 +749,7 @@ const Lesson = props => {
 
 module.exports = Lesson;
 
-},{"./MaterialList":9,"libraries/element-creater":27}],11:[function(require,module,exports){
+},{"./MaterialList":10,"libraries/element-creater":28}],12:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 const Lesson = require('./Lesson');
 
@@ -749,7 +771,7 @@ const LessonList = props => {
 
 module.exports = LessonList;
 
-},{"./Lesson":10,"libraries/element-creater":27}],12:[function(require,module,exports){
+},{"./Lesson":11,"libraries/element-creater":28}],13:[function(require,module,exports){
 const { component, createElement } = require('libraries/element-creater');
 const CategoryTitle = require('./CategoryTitle');
 const LessonList = require('./LessonList');
@@ -803,7 +825,7 @@ class Category extends component {
 
 module.exports = Category;
 
-},{"./CategoryTitle":4,"./LessonList":11,"libraries/element-creater":27}],13:[function(require,module,exports){
+},{"./CategoryTitle":4,"./LessonList":12,"libraries/element-creater":28}],14:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 
 const CloseLessonButton = props => {
@@ -828,7 +850,7 @@ const CloseLessonButton = props => {
 
 module.exports = CloseLessonButton;
 
-},{"libraries/element-creater":27}],14:[function(require,module,exports){
+},{"libraries/element-creater":28}],15:[function(require,module,exports){
 const { createElement } = require('libraries/element-creater');
 const CloseLessonButton = require('./CloseLessonButton');
 
@@ -848,7 +870,7 @@ const SelectedLesson = props => {
 
 module.exports = SelectedLesson;
 
-},{"./CloseLessonButton":13,"libraries/element-creater":27}],15:[function(require,module,exports){
+},{"./CloseLessonButton":14,"libraries/element-creater":28}],16:[function(require,module,exports){
 const { component, createElement } = require('libraries/element-creater');
 const update = require('immutability-helper');
 const MockDatabase = require('../MockDatabase');
@@ -899,7 +921,7 @@ class App extends component {
 
 module.exports = App;
 
-},{"../MockDatabase":16,"./Category":12,"./SelectedLesson":14,"immutability-helper":1,"libraries/element-creater":27}],16:[function(require,module,exports){
+},{"../MockDatabase":17,"./Category":13,"./SelectedLesson":15,"immutability-helper":1,"libraries/element-creater":28}],17:[function(require,module,exports){
 const update = require('immutability-helper');
 const MaterialYoutube = require('./models/MaterialYoutube');
 const MaterialText = require('./models/MaterialText');
@@ -993,7 +1015,7 @@ const MockDatabase = {
 
 module.exports = MockDatabase;
 
-},{"./models/Category":17,"./models/CategoryLesson":18,"./models/CategoryRelationship":19,"./models/Lesson":20,"./models/LessonMaterial":21,"./models/MaterialMultipleChoiceQuestion":22,"./models/MaterialText":23,"./models/MaterialYoutube":24,"immutability-helper":1}],17:[function(require,module,exports){
+},{"./models/Category":18,"./models/CategoryLesson":19,"./models/CategoryRelationship":20,"./models/Lesson":21,"./models/LessonMaterial":22,"./models/MaterialMultipleChoiceQuestion":23,"./models/MaterialText":24,"./models/MaterialYoutube":25,"immutability-helper":1}],18:[function(require,module,exports){
 const Category = [{
   id: 1,
   name: "Top",
@@ -1033,7 +1055,7 @@ const Category = [{
 
 module.exports = Category;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 const CategoryLesson = [{
   id: 1,
   category_id: 5,
@@ -1056,7 +1078,7 @@ const CategoryLesson = [{
 
 module.exports = CategoryLesson;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 const CategoryRelationship = [{
   id: 1,
   parent_category_id: 1,
@@ -1097,7 +1119,7 @@ const CategoryRelationship = [{
 
 module.exports = CategoryRelationship;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 const Lesson = [{
   id: 1,
   name: "Python Beginners",
@@ -1117,7 +1139,7 @@ const Lesson = [{
 
 module.exports = Lesson;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 const LessonMaterial = [{
   id: 1,
   lesson_id: 1,
@@ -1182,7 +1204,7 @@ const LessonMaterial = [{
 
 module.exports = LessonMaterial;
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 const MaterialMultipleChoiceQuestion = [{
   id: 1,
   title: "Python Quiz - Easy",
@@ -1201,7 +1223,7 @@ const MaterialMultipleChoiceQuestion = [{
 
 module.exports = MaterialMultipleChoiceQuestion;
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 const MaterialText = [{
   id: 1,
   title: "Python Summary",
@@ -1216,7 +1238,7 @@ const MaterialText = [{
 
 module.exports = MaterialText;
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 const MaterialYoutube = [{
   id: 1,
   title: "Python Lesson 1 - Install and Setup",
@@ -1257,7 +1279,7 @@ const MaterialYoutube = [{
 
 module.exports = MaterialYoutube;
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 const { renderDocument } = require('libraries/document-renderer');
 const App = require('./App');
 
@@ -1265,14 +1287,14 @@ document.addEventListener("DOMContentLoaded", function (event) {
   renderDocument(new App().render(), document.querySelector('#app'));
 });
 
-},{"./App":15,"libraries/document-renderer":26}],26:[function(require,module,exports){
+},{"./App":16,"libraries/document-renderer":27}],27:[function(require,module,exports){
 const renderDocument = (elements, DOMSelector) => {
   DOMSelector.appendChild(elements);
 }
 
 module.exports = { renderDocument };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 class component {
   constructor(props) {
     this.props = props;
@@ -1327,4 +1349,4 @@ const createElement = elementProperties => {
 
 module.exports = { component, createElement };
 
-},{}]},{},[25]);
+},{}]},{},[26]);

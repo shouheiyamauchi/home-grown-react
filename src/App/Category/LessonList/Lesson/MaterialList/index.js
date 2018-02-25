@@ -1,7 +1,5 @@
 const { createElement } = require('libraries/element-creater');
-const MultipleChoiceQuestion = require('./MultipleChoiceQuestion');
-const Text = require('./Text');
-const Youtube = require('./Youtube');
+const MaterialDisplay = require('./MaterialDisplay');
 
 const MaterialList = props => {
   const {
@@ -11,20 +9,6 @@ const MaterialList = props => {
   return createElement({
     elementType: 'ol',
     childrenElements: materials.map(material => {
-      let materialDisplay
-
-      switch(material.materialType) {
-        case 'MaterialMultipleChoiceQuestion':
-          materialDisplay = new MultipleChoiceQuestion({ material }).render();
-          break;
-        case 'MaterialText':
-          materialDisplay = Text({ material });
-          break;
-        case 'MaterialYoutube':
-          materialDisplay = Youtube({ material });
-          break;
-      };
-
       return createElement({
         elementType: 'li',
         style: {
@@ -36,7 +20,7 @@ const MaterialList = props => {
           createElement({
             elementType: 'div',
             childrenElements: [
-              materialDisplay
+              MaterialDisplay({ material })
             ]
           }),
           createElement({ elementType: 'br' })

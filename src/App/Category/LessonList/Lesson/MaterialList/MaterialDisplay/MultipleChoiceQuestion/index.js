@@ -28,7 +28,7 @@ class MultipleChoiceQuestion extends component {
       material
     } = this.props;
 
-    const multipleChoiceQuestionElementProps = {
+    const multipleChoiceOptionsElementProps = {
       elementType: 'ol',
       childrenElements: material.options.map((option, index) => {
         return createElement({
@@ -47,7 +47,15 @@ class MultipleChoiceQuestion extends component {
       })
     };
 
-    this.renderedElement = createElement(multipleChoiceQuestionElementProps);
+    const multipleChoiceOptionsElement = createElement(multipleChoiceOptionsElementProps);
+
+    const multipleChoiceContainerProps = {
+      elementType: 'div',
+      innerText: material.question,
+      childrenElements: [multipleChoiceOptionsElement]
+    };
+
+    this.renderedElement = createElement(multipleChoiceContainerProps);
   }
 };
 
