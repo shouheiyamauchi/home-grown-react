@@ -1,4 +1,4 @@
-const createElement = require('../libraries/element-creater');
+const createElement = require('libraries/element-creater');
 const MockDatabase = require('../MockDatabase');
 
 const parentCategory = MockDatabase.categoryWithAllChildren(1);

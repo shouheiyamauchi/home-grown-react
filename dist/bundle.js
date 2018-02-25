@@ -499,7 +499,7 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
-const createElement = require('../libraries/element-creater');
+const createElement = require('libraries/element-creater');
 const MockDatabase = require('../MockDatabase');
 
 const parentCategory = MockDatabase.categoryWithAllChildren(1);
@@ -597,7 +597,7 @@ const App = parentContainer;
 
 module.exports = App;
 
-},{"../MockDatabase":5,"../libraries/element-creater":16}],5:[function(require,module,exports){
+},{"../MockDatabase":5,"libraries/element-creater":16}],5:[function(require,module,exports){
 const update = require('immutability-helper');
 const MaterialYoutube = require('./models/MaterialYoutube');
 const MaterialText = require('./models/MaterialText');
@@ -975,8 +975,8 @@ function createElement(elementProperties) {
   const element = document.createElement(elementProperties.type);
   element.innerHTML = elementProperties.props.text;
 
-  elementProperties.props.children.forEach(function (child) {
-    element.appendChild(child);
+  elementProperties.props.children.forEach(function(child) {
+    element.appendChild(child)
   });
 
   return element;
