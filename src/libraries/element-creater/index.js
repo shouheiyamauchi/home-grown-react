@@ -3,7 +3,6 @@ class component {
     this.props = props;
     this.state = {};
     this.renderedElement = '';
-    // return this.render();
   }
 
   updateState(newState, componentElement) {
@@ -11,7 +10,13 @@ class component {
     componentElement.parentNode.replaceChild(this.render(), componentElement);
   }
 
+  setRenderElement() {
+
+  }
+
   render() {
+    this.setRenderElement();
+    return this.renderedElement;
   }
 }
 

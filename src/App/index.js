@@ -1,6 +1,7 @@
 const { component, createElement } = require('libraries/element-creater');
 const update = require('immutability-helper');
 const MockDatabase = require('../MockDatabase');
+const Category = require('./Category');
 
 // const parentCategory = MockDatabase.categoryWithAllChildren(1);
 //
@@ -106,62 +107,7 @@ const MockDatabase = require('../MockDatabase');
 // const App = parentContainer;
 
 
-class Category extends component {
-  constructor(props) {
-    super(props);
-  }
 
-  render() {
-    const {
-      appComponent,
-      updateOpenedLesson,
-      category
-    } = this.props;
-
-    const categoryTitle = createElement({
-      elementType: 'h3',
-      innerText: category.name
-    })
-
-    const categoryElementProps = {
-      elementType: 'div',
-      style: {
-        'padding-left': '15px'
-      },
-      childrenElements: [categoryTitle].concat(category.categories.map(childCategory => {
-        return new Category({
-          appComponent: appComponent,
-          updateOpenedLesson: updateOpenedLesson,
-          category: childCategory
-        }).render()
-      }))
-    };
-
-    const categoryElement = createElement(categoryElementProps);
-
-    const lessonList = createElement({
-      elementType: 'ul',
-      childrenElements: category.lessons.map(lesson => {
-        return createElement({
-          elementType: 'li',
-          style: {
-            'color': 'blue',
-            'cursor': 'pointer'
-          },
-          innerText: lesson.name,
-          onClick: () => updateOpenedLesson(lesson, appComponent)
-        })
-      })
-    })
-
-    const categoryAndLessonProps = {
-      elementType: 'div',
-      childrenElements: [categoryElement, lessonList]
-    }
-
-    return createElement(categoryAndLessonProps);
-  }
-}
 
 
 class App extends component {
@@ -173,15 +119,15 @@ class App extends component {
       element: ''
     }
 
-     this.updateOpenedLesson = this.updateOpenedLesson.bind(this);
+    this.updateOpenedLesson = this.updateOpenedLesson.bind(this);
   }
 
   updateOpenedLesson(lesson, thisComponent) {
-    thisComponent.updateState(update(thisComponent.state, {openedLesson: {$set: lesson.name}}), thisComponent.state.element)
+    thisComponent.updateState(update(thisComponent.state, {openedLesson: {$set: lesson.name}}), thisComponent.renderedElement)
   }
 
-  render() {
-    const subcategoriesProps = {
+  setRenderElement() {
+    const categoryElementProps = {
       elementType: 'div',
       innerText: this.state.openedLesson,
       childrenElements: [
@@ -193,9 +139,7 @@ class App extends component {
       ]
     };
 
-    this.state.element = createElement(subcategoriesProps);
-
-    return this.state.element;
+    this.renderedElement = createElement(categoryElementProps);
   }
 }
 

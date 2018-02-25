@@ -499,9 +499,84 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
+const { createElement } = require('libraries/element-creater');
+
+const CategoryTitle = props => {
+  const {
+    category
+  } = props;
+
+  return createElement({
+    elementType: 'h3',
+    innerText: category.name
+  });
+};
+
+module.exports = CategoryTitle;
+
+},{"libraries/element-creater":18}],5:[function(require,module,exports){
+const { component, createElement } = require('libraries/element-creater');
+const CategoryTitle = require('./CategoryTitle');
+
+class Category extends component {
+  constructor(props) {
+    super(props);
+  }
+
+  setRenderElement() {
+    const {
+      appComponent,
+      updateOpenedLesson,
+      category
+    } = this.props;
+
+    const categoryElementProps = {
+      elementType: 'div',
+      style: {
+        'padding-left': '15px'
+      },
+      childrenElements: [CategoryTitle({ category })].concat(category.categories.map(childCategory => {
+        return new Category({
+          appComponent: appComponent,
+          updateOpenedLesson: updateOpenedLesson,
+          category: childCategory
+        }).render();
+      }))
+    };
+
+    const categoryElement = createElement(categoryElementProps);
+
+    const lessonList = createElement({
+      elementType: 'ul',
+      childrenElements: category.lessons.map(lesson => {
+        return createElement({
+          elementType: 'li',
+          style: {
+            'color': 'blue',
+            'cursor': 'pointer'
+          },
+          innerText: lesson.name,
+          onClick: () => updateOpenedLesson(lesson, appComponent)
+        });
+      })
+    });
+
+    const categoryAndLessonProps = {
+      elementType: 'div',
+      childrenElements: [categoryElement, lessonList]
+    };
+
+    this.renderedElement = createElement(categoryAndLessonProps);
+  }
+}
+
+module.exports = Category;
+
+},{"./CategoryTitle":4,"libraries/element-creater":18}],6:[function(require,module,exports){
 const { component, createElement } = require('libraries/element-creater');
 const update = require('immutability-helper');
 const MockDatabase = require('../MockDatabase');
+const Category = require('./Category');
 
 // const parentCategory = MockDatabase.categoryWithAllChildren(1);
 //
@@ -607,63 +682,6 @@ const MockDatabase = require('../MockDatabase');
 // const App = parentContainer;
 
 
-class Category extends component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const {
-      appComponent,
-      updateOpenedLesson,
-      category
-    } = this.props;
-
-    const categoryTitle = createElement({
-      elementType: 'h3',
-      innerText: category.name
-    });
-
-    const categoryElementProps = {
-      elementType: 'div',
-      style: {
-        'padding-left': '15px'
-      },
-      childrenElements: [categoryTitle].concat(category.categories.map(childCategory => {
-        return new Category({
-          appComponent: appComponent,
-          updateOpenedLesson: updateOpenedLesson,
-          category: childCategory
-        }).render();
-      }))
-    };
-
-    const categoryElement = createElement(categoryElementProps);
-
-    const lessonList = createElement({
-      elementType: 'ul',
-      childrenElements: category.lessons.map(lesson => {
-        return createElement({
-          elementType: 'li',
-          style: {
-            'color': 'blue',
-            'cursor': 'pointer'
-          },
-          innerText: lesson.name,
-          onClick: () => updateOpenedLesson(lesson, appComponent)
-        });
-      })
-    });
-
-    const categoryAndLessonProps = {
-      elementType: 'div',
-      childrenElements: [categoryElement, lessonList]
-    };
-
-    return createElement(categoryAndLessonProps);
-  }
-}
-
 class App extends component {
   constructor(props) {
     super(props);
@@ -677,11 +695,11 @@ class App extends component {
   }
 
   updateOpenedLesson(lesson, thisComponent) {
-    thisComponent.updateState(update(thisComponent.state, { openedLesson: { $set: lesson.name } }), thisComponent.state.element);
+    thisComponent.updateState(update(thisComponent.state, { openedLesson: { $set: lesson.name } }), thisComponent.renderedElement);
   }
 
-  render() {
-    const subcategoriesProps = {
+  setRenderElement() {
+    const categoryElementProps = {
       elementType: 'div',
       innerText: this.state.openedLesson,
       childrenElements: [new Category({
@@ -691,15 +709,13 @@ class App extends component {
       }).render()]
     };
 
-    this.state.element = createElement(subcategoriesProps);
-
-    return this.state.element;
+    this.renderedElement = createElement(categoryElementProps);
   }
 }
 
 module.exports = App;
 
-},{"../MockDatabase":5,"immutability-helper":1,"libraries/element-creater":16}],5:[function(require,module,exports){
+},{"../MockDatabase":7,"./Category":5,"immutability-helper":1,"libraries/element-creater":18}],7:[function(require,module,exports){
 const update = require('immutability-helper');
 const MaterialYoutube = require('./models/MaterialYoutube');
 const MaterialText = require('./models/MaterialText');
@@ -793,7 +809,7 @@ const MockDatabase = {
 
 module.exports = MockDatabase;
 
-},{"./models/Category":6,"./models/CategoryLesson":7,"./models/CategoryRelationship":8,"./models/Lesson":9,"./models/LessonMaterial":10,"./models/MaterialMultipleChoiceQuestion":11,"./models/MaterialText":12,"./models/MaterialYoutube":13,"immutability-helper":1}],6:[function(require,module,exports){
+},{"./models/Category":8,"./models/CategoryLesson":9,"./models/CategoryRelationship":10,"./models/Lesson":11,"./models/LessonMaterial":12,"./models/MaterialMultipleChoiceQuestion":13,"./models/MaterialText":14,"./models/MaterialYoutube":15,"immutability-helper":1}],8:[function(require,module,exports){
 const Category = [{
   id: 1,
   name: "Top",
@@ -833,7 +849,7 @@ const Category = [{
 
 module.exports = Category;
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 const CategoryLesson = [{
   id: 1,
   category_id: 5,
@@ -856,7 +872,7 @@ const CategoryLesson = [{
 
 module.exports = CategoryLesson;
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 const CategoryRelationship = [{
   id: 1,
   parent_category_id: 1,
@@ -897,7 +913,7 @@ const CategoryRelationship = [{
 
 module.exports = CategoryRelationship;
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 const Lesson = [{
   id: 1,
   name: "Python Beginners",
@@ -917,7 +933,7 @@ const Lesson = [{
 
 module.exports = Lesson;
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 const LessonMaterial = [{
   id: 1,
   lesson_id: 1,
@@ -982,7 +998,7 @@ const LessonMaterial = [{
 
 module.exports = LessonMaterial;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 const MaterialMultipleChoiceQuestion = [{
   id: 1,
   title: "Python Quiz - Easy",
@@ -1001,7 +1017,7 @@ const MaterialMultipleChoiceQuestion = [{
 
 module.exports = MaterialMultipleChoiceQuestion;
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const MaterialText = [{
   id: 1,
   title: "Python Summary",
@@ -1016,7 +1032,7 @@ const MaterialText = [{
 
 module.exports = MaterialText;
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 const MaterialYoutube = [{
   id: 1,
   title: "Python Lesson 1 - Install and Setup",
@@ -1057,7 +1073,7 @@ const MaterialYoutube = [{
 
 module.exports = MaterialYoutube;
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 const { renderDocument } = require('libraries/document-renderer');
 const App = require('./App');
 
@@ -1065,20 +1081,19 @@ document.addEventListener("DOMContentLoaded", function (event) {
   renderDocument(new App().render(), document.querySelector('#app'));
 });
 
-},{"./App":4,"libraries/document-renderer":15}],15:[function(require,module,exports){
+},{"./App":6,"libraries/document-renderer":17}],17:[function(require,module,exports){
 function renderDocument(elements, DOMSelector) {
   DOMSelector.appendChild(elements);
 }
 
 module.exports = { renderDocument };
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 class component {
   constructor(props) {
     this.props = props;
     this.state = {};
     this.renderedElement = '';
-    // return this.render();
   }
 
   updateState(newState, componentElement) {
@@ -1086,7 +1101,13 @@ class component {
     componentElement.parentNode.replaceChild(this.render(), componentElement);
   }
 
+  setRenderElement() {
+
+  }
+
   render() {
+    this.setRenderElement();
+    return this.renderedElement;
   }
 }
 
@@ -1127,4 +1148,4 @@ function createElement(elementProperties) {
 
 module.exports = { component, createElement };
 
-},{}]},{},[14]);
+},{}]},{},[16]);
