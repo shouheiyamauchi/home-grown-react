@@ -499,7 +499,7 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
-const createElement = require('libraries/element-creater');
+const { component, createElement } = require('libraries/element-creater');
 const MockDatabase = require('../MockDatabase');
 
 const parentCategory = MockDatabase.categoryWithAllChildren(1);
@@ -590,7 +590,15 @@ function renderSubcategories(parentCategory) {
     }
   };
 
-  return createElement(subcategoriesProps);
+  // return createElement(subcategoriesProps);
+
+  class eg extends component {
+    constructor(elementProperties) {
+      super(elementProperties);
+    }
+  };
+
+  return new eg(subcategoriesProps);
 };
 
 const App = parentContainer;
@@ -956,32 +964,44 @@ const MaterialYoutube = [{
 module.exports = MaterialYoutube;
 
 },{}],14:[function(require,module,exports){
-const renderDocument = require('./libraries/document-renderer');
+const { renderDocument } = require('libraries/document-renderer');
 const App = require('./App');
 
 document.addEventListener("DOMContentLoaded", function (event) {
   renderDocument(App, document.querySelector('#app'));
 });
 
-},{"./App":4,"./libraries/document-renderer":15}],15:[function(require,module,exports){
+},{"./App":4,"libraries/document-renderer":15}],15:[function(require,module,exports){
 function renderDocument(elements, DOMSelector) {
   DOMSelector.appendChild(elements);
 }
 
-module.exports = renderDocument;
+module.exports = { renderDocument };
 
 },{}],16:[function(require,module,exports){
+class component {
+  constructor(elementProperties) {
+    this.elementProperties = elementProperties;
+
+    return this.render();
+  }
+
+  render() {
+    return createElement(this.elementProperties);
+  }
+}
+
 function createElement(elementProperties) {
   const element = document.createElement(elementProperties.type);
   element.innerHTML = elementProperties.props.text;
 
   elementProperties.props.children.forEach(function(child) {
-    element.appendChild(child)
+    element.appendChild(child);
   });
 
   return element;
 }
 
-module.exports = createElement;
+module.exports = { component, createElement };
 
 },{}]},{},[14]);

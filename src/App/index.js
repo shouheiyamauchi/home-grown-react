@@ -1,4 +1,4 @@
-const createElement = require('libraries/element-creater');
+const { component, createElement } = require('libraries/element-creater');
 const MockDatabase = require('../MockDatabase');
 
 const parentCategory = MockDatabase.categoryWithAllChildren(1);
@@ -89,9 +89,17 @@ function renderSubcategories(parentCategory) {
       text: '',
       children: [createElement(subcategoriesList)]
     }
-  }
+  };
 
-  return createElement(subcategoriesProps);
+  // return createElement(subcategoriesProps);
+
+  class eg extends component {
+    constructor(elementProperties) {
+      super(elementProperties)
+    }
+  };
+
+  return new eg(subcategoriesProps);
 };
 
 const App = parentContainer;
