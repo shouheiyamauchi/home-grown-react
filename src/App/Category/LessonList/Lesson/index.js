@@ -1,5 +1,5 @@
 const { createElement } = require('libraries/element-creater');
-const Materials = require('./Materials');
+const MaterialList = require('./MaterialList');
 
 const Lesson = props => {
   const {
@@ -9,16 +9,26 @@ const Lesson = props => {
     updateOpenedLesson
   } = props;
 
-  return createElement({
+  const lessonElementProps = {
     elementType: 'li',
     style: {
       'color': 'blue',
       'cursor': 'pointer'
     },
-    innerText: lesson.name,
-    onClick: () => updateOpenedLesson(appComponent, lesson),
-    childrenElements: lesson.id === selectedLesson.id ? [Materials({ materials: lesson.materials })] : []
-  })
+    innerText: lesson.name
+  };
+
+  const openLesson = () => updateOpenedLesson(appComponent, lesson);
+  const closeLesson = () => updateOpenedLesson(appComponent, {});
+
+  if (lesson.id === selectedLesson.id) {
+    lessonElementProps.onClick = closeLesson;
+    lessonElementProps.childrenElements = [MaterialList({ materials: lesson.materials })]
+  } else {
+    lessonElementProps.onClick = openLesson;
+  };
+
+  return createElement(lessonElementProps);
 };
 
 module.exports = Lesson;
