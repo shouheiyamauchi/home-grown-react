@@ -24,17 +24,24 @@ function createElement(elementProperties) {
   const {
     elementType,
     style,
+    attributes,
     innerText,
     onClick,
     childrenElements
   } = elementProperties;
 
   const element = document.createElement(elementType);
+
   if (style) Object.keys(style).forEach(function(styleName) {
     element.style[styleName] = style[styleName];
   })
 
+  if (attributes) Object.keys(attributes).forEach(function(attributeName) {
+    element.setAttribute(attributeName, attributes[attributeName]);
+  });
+
   element.innerHTML = innerText || '';
+
   element.onclick = onClick
 
   if (childrenElements) childrenElements.forEach(function(child) {

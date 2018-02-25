@@ -21,6 +21,10 @@ class App extends component {
 
   setRenderElement() {
     const {
+      updateOpenedLesson
+    } = this;
+
+    const {
       selectedLesson
     } = this.state;
 
@@ -28,11 +32,13 @@ class App extends component {
       elementType: 'div',
       childrenElements: [
         SelectedLesson({
-          lesson: selectedLesson
+          lesson: selectedLesson,
+          appComponent: this,
+          updateOpenedLesson
         }),
         new Category({
           appComponent: this,
-          updateOpenedLesson: this.updateOpenedLesson,
+          updateOpenedLesson,
           selectedLesson,
           category: MockDatabase.categoryWithAllChildren(1)
         }).render()
