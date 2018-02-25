@@ -10,3 +10,4 @@
 - Use of classes to construct components like React
 - Passing down of props
 - Stateless components
+- Updating parent component from a child component
