@@ -1,5 +1,6 @@
 const { component, createElement } = require('libraries/element-creater');
 const CategoryTitle = require('./CategoryTitle');
+const LessonList = require('./LessonList');
 
 class Category extends component {
   constructor(props) {
@@ -10,46 +11,44 @@ class Category extends component {
     const {
       appComponent,
       updateOpenedLesson,
+      selectedLesson,
       category
     } = this.props;
+
+    // render children categories recursively
+    const subCategoryElements = category.categories.map(childCategory => {
+      return new Category({
+        appComponent,
+        updateOpenedLesson,
+        selectedLesson,
+        category: childCategory
+      }).render()
+    });
 
     const categoryElementProps = {
       elementType: 'div',
       style: {
         'padding-left': '15px'
       },
-      childrenElements: [CategoryTitle({category})].concat(category.categories.map(childCategory => {
-        return new Category({
-          appComponent: appComponent,
-          updateOpenedLesson: updateOpenedLesson,
-          category: childCategory
-        }).render()
-      }))
+      childrenElements: [CategoryTitle({ category })].concat(subCategoryElements)
     };
 
     const categoryElement = createElement(categoryElementProps);
 
-    const lessonList = createElement({
-      elementType: 'ul',
-      childrenElements: category.lessons.map(lesson => {
-        return createElement({
-          elementType: 'li',
-          style: {
-            'color': 'blue',
-            'cursor': 'pointer'
-          },
-          innerText: lesson.name,
-          onClick: () => updateOpenedLesson(lesson, appComponent)
-        })
-      })
-    })
-
-    const categoryAndLessonProps = {
+    const categoryAndLessonElementProps = {
       elementType: 'div',
-      childrenElements: [categoryElement, lessonList]
-    }
+      childrenElements: [
+        categoryElement,
+        LessonList({
+          lessons: category.lessons,
+          appComponent,
+          updateOpenedLesson,
+          selectedLesson
+        })
+      ]
+    };
 
-    this.renderedElement = createElement(categoryAndLessonProps);
+    this.renderedElement = createElement(categoryAndLessonElementProps);
   }
 }
 
