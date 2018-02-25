@@ -501,8 +501,8 @@ process.umask = function() { return 0; };
 },{}],4:[function(require,module,exports){
 const { component, createElement } = require('libraries/element-creater');
 const update = require('immutability-helper');
-// const MockDatabase = require('../MockDatabase');
-//
+const MockDatabase = require('../MockDatabase');
+
 // const parentCategory = MockDatabase.categoryWithAllChildren(1);
 //
 // function renderCategory(category) {
@@ -607,34 +607,60 @@ const update = require('immutability-helper');
 // const App = parentContainer;
 
 
-class Component extends component {
+class Category extends component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      blah: 'haha'
-    };
   }
 
   render() {
-    const classScope = this;
+    const {
+      appComponent,
+      updateOpenedLesson,
+      category
+    } = this.props;
 
-    const subcategoriesProps = {
+    const categoryTitle = createElement({
+      elementType: 'h3',
+      innerText: category.name
+    });
+
+    const categoryElementProps = {
       elementType: 'div',
-      innerText: this.props.prop,
-      onClick: () => {
-        // this.parentNode.replaceChild(createElement(subcategoriesProps), this)
-        // classScope.state.hello = classScope.state.hello + 'okay '
-        // this.parentNode.replaceChild(classScope.render(), this)
-        // console.log(this)
-        this.props.updater();
+      style: {
+        'padding-left': '15px'
       },
-      childrenElements: []
+      childrenElements: [categoryTitle].concat(category.categories.map(childCategory => {
+        return new Category({
+          appComponent: appComponent,
+          updateOpenedLesson: updateOpenedLesson,
+          category: childCategory
+        }).render();
+      }))
     };
 
-    const element = createElement(subcategoriesProps);
+    const categoryElement = createElement(categoryElementProps);
 
-    return element;
+    const lessonList = createElement({
+      elementType: 'ul',
+      childrenElements: category.lessons.map(lesson => {
+        return createElement({
+          elementType: 'li',
+          style: {
+            'color': 'blue',
+            'cursor': 'pointer'
+          },
+          innerText: lesson.name,
+          onClick: () => updateOpenedLesson(lesson, appComponent)
+        });
+      })
+    });
+
+    const categoryAndLessonProps = {
+      elementType: 'div',
+      childrenElements: [categoryElement, lessonList]
+    };
+
+    return createElement(categoryAndLessonProps);
   }
 }
 
@@ -643,44 +669,395 @@ class App extends component {
     super(props);
 
     this.state = {
-      hello: 'yes',
-      prop: 'haha'
+      openedLesson: '',
+      element: ''
     };
+
+    this.updateOpenedLesson = this.updateOpenedLesson.bind(this);
   }
 
-  updater() {
-    console.log(this.state);
+  updateOpenedLesson(lesson, thisComponent) {
+    thisComponent.updateState(update(thisComponent.state, { openedLesson: { $set: lesson.name } }), thisComponent.state.element);
   }
 
   render() {
-    const classScope = this;
-
     const subcategoriesProps = {
       elementType: 'div',
-      innerText: classScope.state.hello,
-      onClick: () => {
-        // this.parentNode.replaceChild(createElement(subcategoriesProps), this)
-        // classScope.state.hello = classScope.state.hello + 'okay '
-        // this.parentNode.replaceChild(classScope.render(), this)
-        // console.log(this)
-        // this.updater()
-        // this.updateState({hello: this.state.hello + ' hello'}, element)
-      },
-      childrenElements: [new Component({
-        updater: () => this.updateState(update(this.state, { hello: { $set: this.state.hello + ' hello' } }), element),
-        prop: this.state.prop
+      innerText: this.state.openedLesson,
+      childrenElements: [new Category({
+        appComponent: this,
+        updateOpenedLesson: this.updateOpenedLesson,
+        category: MockDatabase.categoryWithAllChildren(1)
       }).render()]
     };
 
-    const element = createElement(subcategoriesProps);
+    this.state.element = createElement(subcategoriesProps);
 
-    return element;
+    return this.state.element;
   }
 }
 
 module.exports = App;
 
-},{"immutability-helper":1,"libraries/element-creater":7}],5:[function(require,module,exports){
+},{"../MockDatabase":5,"immutability-helper":1,"libraries/element-creater":16}],5:[function(require,module,exports){
+const update = require('immutability-helper');
+const MaterialYoutube = require('./models/MaterialYoutube');
+const MaterialText = require('./models/MaterialText');
+const MaterialMultipleChoiceQuestion = require('./models/MaterialMultipleChoiceQuestion');
+const LessonMaterial = require('./models/LessonMaterial');
+const Lesson = require('./models/Lesson');
+const CategoryLesson = require('./models/CategoryLesson');
+const Category = require('./models/Category');
+const CategoryRelationship = require('./models/CategoryRelationship');
+
+const MockDatabase = {
+  categoryWithAllChildren: function (categoryId) {
+    const categoryWithAllChildren = this.findCategory(categoryId);
+
+    categoryWithAllChildren.categories = this.findCategoryChildren(categoryId);
+    // get child categories of child categories
+    categoryWithAllChildren.categories.map((childCategory, index) => categoryWithAllChildren.categories[index] = this.categoryWithAllChildren(childCategory.id));
+
+    categoryWithAllChildren.lessons = this.findCategoryLessons(categoryId);
+    // get materials of lessons
+    categoryWithAllChildren.lessons.map((categoryLesson, index) => categoryWithAllChildren.lessons[index].materials = this.findLessonMaterials(categoryLesson.id));
+
+    return categoryWithAllChildren;
+  },
+  findMaterial: function (materialProps) {
+    const { material_type, material_id } = materialProps;
+
+    const MaterialModel = {
+      MaterialYoutube: MaterialYoutube,
+      MaterialText: MaterialText,
+      MaterialMultipleChoiceQuestion: MaterialMultipleChoiceQuestion
+    }[material_type];
+
+    // add material type to object
+    return update(MaterialModel.find(material => material.id === material_id), { materialType: { $set: material_type } });
+  },
+  findMaterialsByMaterialPropsArray: function (materialPropsArray) {
+    const materialsArray = [];
+    // don't use Array.filter to retain order
+    materialPropsArray.forEach(materialProps => materialsArray.push(this.findMaterial(materialProps)));
+
+    return materialsArray;
+  },
+  findLessonMaterials: function (lessonId) {
+    const lessonMaterialObjects = LessonMaterial.filter(lessonMaterial => lessonMaterial.lesson_id === lessonId);
+    // sort by index property
+    const sortedlessonMaterialObjects = lessonMaterialObjects.sort((a, b) => a.index - b.index);
+    const lessonMaterialProps = sortedlessonMaterialObjects.map(lessonMaterialObject => {
+      return { material_type: lessonMaterialObject.material_type, material_id: lessonMaterialObject.material_id };
+    });
+
+    return this.findMaterialsByMaterialPropsArray(lessonMaterialProps);
+  },
+  findLesson: function (id) {
+    return Lesson.find(lesson => lesson.id === id);
+  },
+  findLessonsByIdArray: function (idArray) {
+    const lessonsArray = [];
+    // don't use Array.filter to retain order
+    idArray.forEach(id => lessonsArray.push(this.findLesson(id)));
+
+    return lessonsArray;
+  },
+  findCategory: function (id) {
+    return Category.find(category => category.id === id);
+  },
+  findCategoriesByIdArray: function (idArray) {
+    const categoriesArray = [];
+    // don't use Array.filter to retain order
+    idArray.forEach(id => categoriesArray.push(this.findCategory(id)));
+
+    return categoriesArray;
+  },
+  findCategoryChildren: function (categoryId) {
+    const categoryRelationshipObjects = CategoryRelationship.filter(categoryRelationship => categoryRelationship.parent_category_id === categoryId);
+    // sort by index property
+    const sortedCategoryRelationshipObjects = categoryRelationshipObjects.sort((a, b) => a.index - b.index);
+    const childCategoryIds = sortedCategoryRelationshipObjects.map(categoryRelationshipObject => categoryRelationshipObject.child_category_id);
+
+    return this.findCategoriesByIdArray(childCategoryIds);
+  },
+  findCategoryLessons: function (categoryId) {
+    const categoryLessonObjects = CategoryLesson.filter(lessonCategory => lessonCategory.category_id === categoryId);
+    // sort by index property
+    const sortedCategoryLessonObjects = categoryLessonObjects.sort((a, b) => a.index - b.index);
+    const categoryLessonIds = sortedCategoryLessonObjects.map(categoryLessonObject => categoryLessonObject.lesson_id);
+
+    return this.findLessonsByIdArray(categoryLessonIds);
+  }
+};
+
+module.exports = MockDatabase;
+
+},{"./models/Category":6,"./models/CategoryLesson":7,"./models/CategoryRelationship":8,"./models/Lesson":9,"./models/LessonMaterial":10,"./models/MaterialMultipleChoiceQuestion":11,"./models/MaterialText":12,"./models/MaterialYoutube":13,"immutability-helper":1}],6:[function(require,module,exports){
+const Category = [{
+  id: 1,
+  name: "Top",
+  description: "",
+  active: true
+}, {
+  id: 2,
+  name: "Programming",
+  description: "Learn how to program.",
+  active: true
+}, {
+  id: 3,
+  name: "Programming Language Types",
+  description: "List of programming language types.",
+  active: true
+}, {
+  id: 4,
+  name: "Objected-Oriented Language",
+  description: "Category of object-oriented programming languages.",
+  active: true
+}, {
+  id: 5,
+  name: "Python",
+  description: "Learn how to program in Python.",
+  active: true
+}, {
+  id: 6,
+  name: "Procedural Language",
+  description: "Category of procedural programming languages.",
+  active: true
+}, {
+  id: 7,
+  name: "C",
+  description: "Learn how to program in C.",
+  active: true
+}];
+
+module.exports = Category;
+
+},{}],7:[function(require,module,exports){
+const CategoryLesson = [{
+  id: 1,
+  category_id: 5,
+  lesson_id: 1,
+  index: 1,
+  active: true
+}, {
+  id: 2,
+  category_id: 5,
+  lesson_id: 2,
+  index: 2,
+  active: true
+}, {
+  id: 3,
+  category_id: 7,
+  lesson_id: 3,
+  index: 1,
+  active: true
+}];
+
+module.exports = CategoryLesson;
+
+},{}],8:[function(require,module,exports){
+const CategoryRelationship = [{
+  id: 1,
+  parent_category_id: 1,
+  child_category_id: 2,
+  index: 1,
+  active: true
+}, {
+  id: 2,
+  parent_category_id: 2,
+  child_category_id: 3,
+  index: 1,
+  active: true
+}, {
+  id: 3,
+  parent_category_id: 3,
+  child_category_id: 4,
+  index: 1,
+  active: true
+}, {
+  id: 4,
+  parent_category_id: 4,
+  child_category_id: 5,
+  index: 1,
+  active: true
+}, {
+  id: 5,
+  parent_category_id: 3,
+  child_category_id: 6,
+  index: 2,
+  active: true
+}, {
+  id: 6,
+  parent_category_id: 6,
+  child_category_id: 7,
+  index: 1,
+  active: true
+}];
+
+module.exports = CategoryRelationship;
+
+},{}],9:[function(require,module,exports){
+const Lesson = [{
+  id: 1,
+  name: "Python Beginners",
+  description: "Learn how to program in Python from zero with no programming experience.",
+  active: true
+}, {
+  id: 2,
+  name: "Python Intermediate",
+  description: "Learn how to program in Python at an intermediate level.",
+  active: true
+}, {
+  id: 3,
+  name: "C Beginners",
+  description: "Learn how to program in C from zero with no programming experience.",
+  active: true
+}];
+
+module.exports = Lesson;
+
+},{}],10:[function(require,module,exports){
+const LessonMaterial = [{
+  id: 1,
+  lesson_id: 1,
+  material_type: "MaterialText",
+  material_id: 1,
+  index: 1
+}, {
+  id: 2,
+  lesson_id: 1,
+  material_type: "MaterialYoutube",
+  material_id: 1,
+  index: 2
+}, {
+  id: 3,
+  lesson_id: 1,
+  material_type: "MaterialYoutube",
+  material_id: 2,
+  index: 3
+}, {
+  id: 4,
+  lesson_id: 1,
+  material_type: "MaterialYoutube",
+  material_id: 3,
+  index: 4
+}, {
+  id: 5,
+  lesson_id: 1,
+  material_type: "MaterialMultipleChoiceQuestion",
+  material_id: 1,
+  index: 5
+}, {
+  id: 6,
+  lesson_id: 2,
+  material_type: "MaterialYoutube",
+  material_id: 4,
+  index: 1
+}, {
+  id: 7,
+  lesson_id: 2,
+  material_type: "MaterialYoutube",
+  material_id: 5,
+  index: 2
+}, {
+  id: 8,
+  lesson_id: 3,
+  material_type: "MaterialText",
+  material_id: 2,
+  index: 1
+}, {
+  id: 8,
+  lesson_id: 3,
+  material_type: "MaterialYoutube",
+  material_id: 6,
+  index: 2
+}, {
+  id: 9,
+  lesson_id: 3,
+  material_type: "MaterialMultipleChoiceQuestion",
+  material_id: 2,
+  index: 3
+}];
+
+module.exports = LessonMaterial;
+
+},{}],11:[function(require,module,exports){
+const MaterialMultipleChoiceQuestion = [{
+  id: 1,
+  title: "Python Quiz - Easy",
+  question: "What is the output of the following: print(\"Hello {name1} and {name2}\".format(name1='foo', name2='bin'))",
+  options: ["Hello foo and bin", "Hello {name1} and {name2}", "Error", "Hello and"],
+  correct_answer: 0,
+  active: true
+}, {
+  id: 2,
+  title: "C History Quiz",
+  question: "C Programming was created at ______ by Dennis Ritchie.",
+  options: ["Stanford Lab", "Haward University", "AT&T Bell Laboratory", "L&T Laboratory", "MIT University"],
+  correct_answer: 2,
+  active: true
+}];
+
+module.exports = MaterialMultipleChoiceQuestion;
+
+},{}],12:[function(require,module,exports){
+const MaterialText = [{
+  id: 1,
+  title: "Python Summary",
+  description: "Python is an interpreted, object-oriented, high-level programming language with dynamic semantics. Its high-level built in data structures, combined with dynamic typing and dynamic binding, make it very attractive for Rapid Application Development, as well as for use as a scripting or glue language to connect existing components together. Python's simple, easy to learn syntax emphasizes readability and therefore reduces the cost of program maintenance.",
+  active: true
+}, {
+  id: 2,
+  title: "C Summary",
+  description: "C has been used successfully for every type of programming problem imaginable from operating systems to spreadsheets to expert systems - and efficient compilers are available for machines ranging in power from the Apple Macintosh to the Cray supercomputers.",
+  active: true
+}];
+
+module.exports = MaterialText;
+
+},{}],13:[function(require,module,exports){
+const MaterialYoutube = [{
+  id: 1,
+  title: "Python Lesson 1 - Install and Setup",
+  description: "Learn how to install Python and setting up the Python development environment.",
+  video_url: "https://www.youtube.com/embed/cpPG0bKHYKc",
+  active: true
+}, {
+  id: 2,
+  title: "Python Lesson 2 - Functions and Variables",
+  description: "Learn how to create basic functions and how to define variables.",
+  video_url: "https://www.youtube.com/embed/IEel7loz-ag",
+  active: true
+}, {
+  id: 3,
+  title: "Python Lesson 3 - Function Return Values and Debugging",
+  description: "Learn how to declare functions with multiple arguments, functions that return values, and the basics of debugging using the PyCharm IDE.",
+  video_url: "https://www.youtube.com/embed/uPwztoPBVWI",
+  active: true
+}, {
+  id: 4,
+  title: "Intermedia Python Programming - Part 1",
+  description: "Video for a people with some experience in programming wanting to learn Python.",
+  video_url: "https://www.youtube.com/embed/YSe9Tu_iNQQ",
+  active: true
+}, {
+  id: 5,
+  title: "Intermedia Python Programming - Part 2",
+  description: "Video for a people with some experience in programming wanting to learn Python.",
+  video_url: "https://www.youtube.com/embed/jA5LW3bR0Us",
+  active: true
+}, {
+  id: 6,
+  title: "C Programming Tutorial",
+  description: "A comprehensive video tutorial for C.",
+  video_url: "https://www.youtube.com/embed/CpG3oATGIs",
+  active: true
+}];
+
+module.exports = MaterialYoutube;
+
+},{}],14:[function(require,module,exports){
 const { renderDocument } = require('libraries/document-renderer');
 const App = require('./App');
 
@@ -688,14 +1065,14 @@ document.addEventListener("DOMContentLoaded", function (event) {
   renderDocument(new App().render(), document.querySelector('#app'));
 });
 
-},{"./App":4,"libraries/document-renderer":6}],6:[function(require,module,exports){
+},{"./App":4,"libraries/document-renderer":15}],15:[function(require,module,exports){
 function renderDocument(elements, DOMSelector) {
   DOMSelector.appendChild(elements);
 }
 
 module.exports = { renderDocument };
 
-},{}],7:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 class component {
   constructor(props) {
     this.props = props;
@@ -704,9 +1081,9 @@ class component {
     // return this.render();
   }
 
-  updateState(newState, htmlScope) {
+  updateState(newState, componentElement) {
     this.state = newState;
-    htmlScope.parentNode.replaceChild(this.render(), htmlScope);
+    componentElement.parentNode.replaceChild(this.render(), componentElement);
   }
 
   render() {
@@ -727,16 +1104,21 @@ class component {
 function createElement(elementProperties) {
   const {
     elementType,
+    style,
     innerText,
     onClick,
     childrenElements
   } = elementProperties;
 
   const element = document.createElement(elementType);
-  element.innerHTML = innerText;
+  if (style) Object.keys(style).forEach(function(styleName) {
+    element.style[styleName] = style[styleName];
+  })
+
+  element.innerHTML = innerText || '';
   element.onclick = onClick
 
-  childrenElements.forEach(function(child) {
+  if (childrenElements) childrenElements.forEach(function(child) {
     element.appendChild(child);
   });
 
@@ -745,4 +1127,4 @@ function createElement(elementProperties) {
 
 module.exports = { component, createElement };
 
-},{}]},{},[5]);
+},{}]},{},[14]);

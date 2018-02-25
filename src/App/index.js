@@ -1,7 +1,7 @@
 const { component, createElement } = require('libraries/element-creater');
 const update = require('immutability-helper');
-// const MockDatabase = require('../MockDatabase');
-//
+const MockDatabase = require('../MockDatabase');
+
 // const parentCategory = MockDatabase.categoryWithAllChildren(1);
 //
 // function renderCategory(category) {
@@ -106,34 +106,60 @@ const update = require('immutability-helper');
 // const App = parentContainer;
 
 
-class Component extends component {
+class Category extends component {
   constructor(props) {
-    super(props)
-
-    this.state = {
-      blah: 'haha'
-    }
+    super(props);
   }
 
   render() {
-    const classScope = this;
+    const {
+      appComponent,
+      updateOpenedLesson,
+      category
+    } = this.props;
 
-    const subcategoriesProps = {
+    const categoryTitle = createElement({
+      elementType: 'h3',
+      innerText: category.name
+    })
+
+    const categoryElementProps = {
       elementType: 'div',
-      innerText: this.props.prop,
-      onClick: () => {
-        // this.parentNode.replaceChild(createElement(subcategoriesProps), this)
-        // classScope.state.hello = classScope.state.hello + 'okay '
-        // this.parentNode.replaceChild(classScope.render(), this)
-        // console.log(this)
-        this.props.updater();
+      style: {
+        'padding-left': '15px'
       },
-      childrenElements: []
+      childrenElements: [categoryTitle].concat(category.categories.map(childCategory => {
+        return new Category({
+          appComponent: appComponent,
+          updateOpenedLesson: updateOpenedLesson,
+          category: childCategory
+        }).render()
+      }))
     };
 
-    const element = createElement(subcategoriesProps);
+    const categoryElement = createElement(categoryElementProps);
 
-    return element;
+    const lessonList = createElement({
+      elementType: 'ul',
+      childrenElements: category.lessons.map(lesson => {
+        return createElement({
+          elementType: 'li',
+          style: {
+            'color': 'blue',
+            'cursor': 'pointer'
+          },
+          innerText: lesson.name,
+          onClick: () => updateOpenedLesson(lesson, appComponent)
+        })
+      })
+    })
+
+    const categoryAndLessonProps = {
+      elementType: 'div',
+      childrenElements: [categoryElement, lessonList]
+    }
+
+    return createElement(categoryAndLessonProps);
   }
 }
 
@@ -143,40 +169,33 @@ class App extends component {
     super(props)
 
     this.state = {
-      hello: 'yes',
-      prop: 'haha'
+      openedLesson: '',
+      element: ''
     }
+
+     this.updateOpenedLesson = this.updateOpenedLesson.bind(this);
   }
 
-  updater() {
-    console.log(this.state);
+  updateOpenedLesson(lesson, thisComponent) {
+    thisComponent.updateState(update(thisComponent.state, {openedLesson: {$set: lesson.name}}), thisComponent.state.element)
   }
 
   render() {
-    const classScope = this;
-
     const subcategoriesProps = {
       elementType: 'div',
-      innerText: classScope.state.hello,
-      onClick: () => {
-        // this.parentNode.replaceChild(createElement(subcategoriesProps), this)
-        // classScope.state.hello = classScope.state.hello + 'okay '
-        // this.parentNode.replaceChild(classScope.render(), this)
-        // console.log(this)
-        // this.updater()
-        // this.updateState({hello: this.state.hello + ' hello'}, element)
-      },
+      innerText: this.state.openedLesson,
       childrenElements: [
-        new Component({
-          updater: () => this.updateState(update(this.state, {hello: {$set: this.state.hello + ' hello'}}), element),
-          prop: this.state.prop
+        new Category({
+          appComponent: this,
+          updateOpenedLesson: this.updateOpenedLesson,
+          category: MockDatabase.categoryWithAllChildren(1)
         }).render()
       ]
     };
 
-    const element = createElement(subcategoriesProps);
+    this.state.element = createElement(subcategoriesProps);
 
-    return element;
+    return this.state.element;
   }
 }
 

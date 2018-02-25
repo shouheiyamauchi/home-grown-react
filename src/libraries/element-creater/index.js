@@ -6,9 +6,9 @@ class component {
     // return this.render();
   }
 
-  updateState(newState, htmlScope) {
+  updateState(newState, componentElement) {
     this.state = newState;
-    htmlScope.parentNode.replaceChild(this.render(), htmlScope);
+    componentElement.parentNode.replaceChild(this.render(), componentElement);
   }
 
   render() {
@@ -29,16 +29,21 @@ class component {
 function createElement(elementProperties) {
   const {
     elementType,
+    style,
     innerText,
     onClick,
     childrenElements
   } = elementProperties;
 
   const element = document.createElement(elementType);
-  element.innerHTML = innerText;
+  if (style) Object.keys(style).forEach(function(styleName) {
+    element.style[styleName] = style[styleName];
+  })
+
+  element.innerHTML = innerText || '';
   element.onclick = onClick
 
-  childrenElements.forEach(function(child) {
+  if (childrenElements) childrenElements.forEach(function(child) {
     element.appendChild(child);
   });
 
