@@ -1,4 +1,5 @@
 const { createElement } = require('libraries/element-creater');
+const Lesson = require('./Lesson');
 
 const LessonList = props => {
   const {
@@ -11,15 +12,7 @@ const LessonList = props => {
   return createElement({
     elementType: 'ul',
     childrenElements: lessons.map(lesson => {
-      return createElement({
-        elementType: 'li',
-        style: {
-          'color': 'blue',
-          'cursor': 'pointer'
-        },
-        innerText: lesson.name + (lesson.id === selectedLesson.id ? ' (selected)' : ''),
-        onClick: () => updateOpenedLesson(appComponent, lesson)
-      })
+      return Lesson({ lesson, selectedLesson, appComponent, updateOpenedLesson });
     })
   })
 };
